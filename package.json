@@ -1,0 +1,13 @@
+{
+  "name": "electron-direct-comm",
+  "version": "1.0.0",
+  "description": "direct communication between electron renderer processes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lynn Neir",
+  "license": "ISC",
+  "dependencies": {
+  }
+}

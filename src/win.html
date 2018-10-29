@@ -1,0 +1,74 @@
+<html>
+    <head>
+    </head>
+    <body>
+        pop-out window: <span id='name'></span>
+        <div>
+                <button id ='register'>register</button>
+                <button id='connect'>connect</button>
+                <button id='send'>send</button>
+                <button id='close'>close</button>
+        </div>
+        <div id='status'></div>
+        <script type='module'>
+            import { listenForMessage, registerWindow, getWindows, openConnection, sendMessage, closeConnection } from './index.js';
+
+            const nameEl = document.getElementById('name');
+            nameEl.innerText = window.name;
+            const statusEl = document.getElementById('status');
+            function updateStatus(msg) {
+                var p = document.createElement('p');
+                p.innerText = msg;
+                statusEl.appendChild(p);
+            }
+
+            listenForMessage((windowId, data) => {
+                updateStatus('rcvd msg: ' + data.msg + ' data: ' + data.arBuff);
+            });
+            
+            const el = document.getElementById('register');
+            el.addEventListener('click', async () => {
+                await registerWindow(window.name);
+                updateStatus('register complete');
+            });
+            
+            const findOtherFind = async () => {
+                const ids = await getWindows();
+                for(let i = 0; i < ids.length; i++) {
+                    if (ids[i] !== window.name) {
+                        return ids[i];
+                    }
+                }
+            }
+            const el2 = document.getElementById('connect');
+            el2.addEventListener('click', async () => {
+                const otherWindowId = await findOtherFind(); 
+                if (otherWindowId) {
+                    const callback = await openConnection(otherWindowId);
+                    updateStatus('connection open');
+                }
+            });
+
+            const el3 = document.getElementById('send'); 
+            el3.addEventListener('click', async () => {
+                const otherWindowId = await findOtherFind(); 
+                if (otherWindowId) {
+                    const arBuff = new ArrayBuffer(3);
+                    const arView = new Uint8Array(arBuff);
+                    arView.fill(3);
+                    await sendMessage(otherWindowId, { msg: 'hello from window: ' + window.name, arBuff: arView.buffer }, [ arView.buffer ]);
+                    updateStatus('message sent and acknowledged');
+                }
+            });
+
+            const el4 = document.getElementById('close');
+            el4.addEventListener('click', async () => {
+                const otherWindowId = await findOtherFind(); 
+                if (otherWindowId) {
+                    closeConnection(otherWindowId);
+                    updateStatus('connection closed');
+                }
+            })
+        </script>
+    </body>
+</html>
