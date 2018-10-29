@@ -1,4 +1,4 @@
-# electron-direct-comm
+# Direct communication between renderer processes
 
 This library is work in progress...
 
